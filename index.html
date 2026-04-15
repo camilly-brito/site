@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nossa Retrospectiva ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   RESET & VARIÁVEIS GLOBAIS
+   ========================================================================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg-app: #121212;
+  --bg-card: #1c1c1e;
+  --bg-card-dark: #000000;
+  --bg-coral: #E86B4F;
+  --bg-music: #121216; /* Cor escura estilo Spotify */
+  --btn-purple: #A070E3;
+  --btn-blue: #38BDF8;
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  --spotify-green: #1DB954;
+  --font: 'Inter', system-ui, sans-serif;
+}
+html { scroll-behavior: smooth; background: #000; }
+body { 
+  font-family: var(--font); 
+  background: var(--bg-app); 
+  color: var(--text-main); 
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 430px;
+  background: var(--bg-app);
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 20px;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   1. CABEÇALHO 
+   ========================================================================== */
+.status-bar { display: flex; justify-content: space-between; padding: 10px 20px 5px; font-size: 13px; font-weight: 500; }
+.window-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid #2c2c2e; }
+.mac-dots { display: flex; gap: 8px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+.window-title { font-weight: 600; font-size: 15px; color: #e5e5ea; }
+.window-close { color: #8e8e93; font-size: 18px; cursor: pointer; }
+
+.card { background: var(--bg-card); border-radius: 20px; margin: 16px; padding: 20px; }
+
+/* ==========================================================================
+   2. CONTADOR
+   ========================================================================== */
+.cgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cbox { background: #232325; border-radius: 16px; padding: 18px 5px; text-align: center; }
+.cnum { font-size: 26px; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 2px;}
+.clbl { font-size: 12px; color: var(--text-muted); font-weight: 500;}
+.since-text { font-size: 14px; color: #e5e5ea; text-align: center; margin-bottom: 12px; font-weight: 600; }
+
+/* ==========================================================================
+   3. MENSAGEM ESPECIAL (Estilo Letra de Música)
+   ========================================================================== */
+.card-coral { background: var(--bg-coral); margin: 12px 16px; border-radius: 18px; padding: 16px 16px 14px; position: relative; overflow: hidden; max-width: 92%; margin-left: auto; margin-right: auto; }
+.coral-header { color: #fff; font-weight: 700; font-size: 15px; margin-bottom: 14px; }
+.msg-text-wrapper { position: relative; }
+/* Formatação Estilo Letra de Música */
+.hmsg { font-size: 20px; font-weight: 700; color: #1a1a1a; line-height: 1.65; letter-spacing: 0; text-align: left; white-space: pre-wrap; max-height: 180px; overflow: hidden; }
+.fade-out { position: absolute; bottom: 0; left: 0; width: 100%; height: 80px; background: linear-gradient(to bottom, rgba(232,107,79,0), rgba(232,107,79,1) 95%); pointer-events: none; }
+.btn-mostrar { background: #fff; color: #121212; border: none; padding: 10px 18px; border-radius: 28px; font-weight: 700; font-size: 13px; margin-top: 12px; position: relative; z-index: 2; cursor: pointer; transition: transform 0.1s; }
+.btn-mostrar:active { transform: scale(0.96); }
+
+/* ==========================================================================
+   4. CONQUISTAS (CARROSSEL HORIZONTAL)
+   ========================================================================== */
+.ach-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.ach-title { font-size: 18px; font-weight: 800; }
+.ach-badge { background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+.agrid { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; -ms-overflow-style: none; }
+.agrid::-webkit-scrollbar { display: none; }
+.acard { flex: 0 0 75px; height: 75px; border: 1px solid #4a5568; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: transparent; cursor: pointer; transition: transform 0.1s; }
+.acard:active { transform: scale(0.92); }
+.acard.highlight { border-color: #A070E3; background: rgba(160, 112, 227, 0.15); }
+.acard.locked { border-color: #333; background: #1a1a1c; filter: grayscale(100%); opacity: 0.6; }
+
+/* Modais Pop-up */
+.ach-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+.ach-modal-overlay.show { display: flex; opacity: 1; }
+.ach-popup { background: var(--bg-card); border-radius: 24px; padding: 30px; text-align: center; width: 80%; max-width: 300px; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+.ach-modal-overlay.show .ach-popup { transform: scale(1); }
+.ach-popup-icon { font-size: 50px; margin-bottom: 15px; }
+.ach-popup-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; color: #fff; }
+.ach-popup-desc { font-size: 14px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+.ach-popup-btn { background: var(--btn-purple); color: #fff; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; }
+
+/* ==========================================================================
+   5. SUA RETROSPECTIVA
+   ========================================================================== */
+.card-retro { background: var(--bg-card-dark); margin: 16px; border-radius: 20px; padding: 40px 20px; text-align: center; position: relative; overflow: hidden; }
+.retro-wave { position: absolute; width: 150%; height: 80px; left: -25%; background: linear-gradient(90deg, #ff007f, #ff0040); filter: blur(15px); opacity: 0.6; z-index: 0; }
+.wave-top { top: -40px; transform: rotate(-5deg); }
+.wave-bottom { bottom: -40px; transform: rotate(5deg); }
+.retro-content { position: relative; z-index: 1; }
+.retro-title { font-size: 28px; font-weight: 900; margin-bottom: 5px; }
+.retro-sub { font-size: 16px; color: #e5e5ea; margin-bottom: 25px; }
+.retro-btns { display: flex; justify-content: center; gap: 12px; }
+.btn-voltar-home, .btn-vamos { padding: 14px 24px; border-radius: 30px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; }
+.btn-voltar-home { background: var(--btn-purple); color: #fff; display: flex; align-items: center; gap: 6px; }
+.btn-vamos { background: var(--btn-blue); color: #000; }
+
+/* ==========================================================================
+   6. NOSSA MÚSICA (Estilo Print Spotify)
+   ========================================================================== */
+.music-header { text-align: center; margin: 30px 16px 10px; }
+.music-header h2 { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+.music-header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+
+.card-spotify { background: var(--bg-music); border-radius: 24px; margin: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.mus-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.mus-top-btn { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.mus-top-title { font-size: 12px; font-weight: 700; letter-spacing: 1px; color: #fff; text-transform: uppercase; }
+.mus-cover { width: 100%; aspect-ratio: 1; border-radius: 12px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
+.mus-cover img { width: 100%; height: 100%; object-fit: cover; }
+.mus-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+.mus-title-wrap { overflow: hidden; max-width: 220px; position: relative; }
+.mus-title-track { display: inline-flex; gap: 50px; align-items: center; white-space: nowrap; }
+.mus-title { font-size: 22px; font-weight: 800; color: #fff; white-space: nowrap; }
+.mus-title-track.scrolling { animation: scroll-music-title 14s linear infinite; }
+@keyframes scroll-music-title { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.mus-artist { font-size: 15px; color: rgba(255,255,255,0.7); }
+.mus-heart { color: var(--spotify-green); font-size: 20px; }
+
+.sp-progress-area { margin-bottom: 15px; }
+.sp-bar { width: 100%; height: 4px; background: rgba(255,255,255,0.2); border-radius: 4px; cursor: pointer; position: relative; margin-bottom: 8px; }
+.sp-bar-fill { height: 100%; width: 0%; background: #fff; border-radius: 4px; position: relative; }
+.sp-bar-fill::after { content: ''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); width: 12px; height: 12px; border-radius: 50%; background: #fff; }
+.sp-times { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 600; }
+.sp-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;}
+.sp-ctrl-btn { background: none; border: none; color: #fff; font-size: 20px; cursor: pointer; opacity: 0.8; }
+.sp-play-btn { width: 64px; height: 64px; border-radius: 50%; background: #fff; border: none; color: var(--bg-music); display: flex; align-items: center; justify-content: center; cursor: pointer; padding-left: 4px; }
+.sp-play-btn.paused { padding-left: 0; }
+.sp-device { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--spotify-green); font-weight: 600; margin-top: 10px;}
+.sp-device-icon { display: flex; align-items: center; gap: 8px; }
+
+/* ==========================================================================
+   7. GALERIA (CARROSSEL DE FOTOS) NÓS.
+   ========================================================================== */
+.card-nos { background: #232325; border-radius: 20px; padding: 0; margin: 16px; position: relative; overflow: hidden; }
+.nos-tag { position: absolute; top: 15px; left: 15px; font-size: 28px; font-weight: 900; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,0.8); z-index: 2;}
+.nos-counter-badge { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.6); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; z-index: 2; backdrop-filter: blur(4px); }
+
+.nos-carousel-container { position: relative; width: 100%; }
+.nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 20px; font-weight: bold; border: none; backdrop-filter: blur(4px); transition: background 0.2s; }
+.nav-btn:hover { background: rgba(0,0,0,0.7); }
+.nav-btn.left { left: 10px; }
+.nav-btn.right { right: 10px; }
+
+.nos-carousel { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; width: 100%; scroll-behavior: smooth; }
+.nos-carousel::-webkit-scrollbar { display: none; }
+.gc { flex: 0 0 100%; width: 100%; padding: 0; scroll-snap-align: start; aspect-ratio: 1; /* Quadrado grande */ }
+.gc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.nos-info { padding: 20px; background: #1c1c1e; }
+.nos-names { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+.nos-since { font-size: 14px; color: var(--text-muted); }
+
+/* ==========================================================================
+   8. LUA E MAPA (Estilos Originais Adaptados)
+   ========================================================================== */
+.card-moon, .card-map { text-align: center; }
+.card-map { background: linear-gradient(180deg, #17171f, #1f1f29); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 22px 50px rgba(0,0,0,0.24); border-radius: 26px; padding: 22px 18px; margin: 16px; }
+.card-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; color: #fff;}
+.card-subtitle { font-size: 13px; color: #c7cad8; margin-bottom: 20px; }
+.canvas-wrapper { display: flex; justify-content: center; margin-bottom: 15px; }
+.map-legend { font-size: 12px; color: #d7d9e5; line-height: 1.65; max-width: 360px; margin: 0 auto 0; text-align: left; }
+.map-legend span { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ==========================================================================
+   9. RODAPÉ
+   ========================================================================== */
+.footer { text-align: center; padding: 30px 20px; font-size: 12px; color: #555; }
+
+/* ==========================================================================
+   10. MODAIS EM TELA CHEIA (Letra da Música e Linha do Tempo)
+   ========================================================================== */
+.fullscreen-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; display: none; flex-direction: column; padding: 20px; overflow-y: auto; animation: slideUp 0.3s ease forwards; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* Estilo Letra */
+.modal-coral { background: var(--bg-coral); }
+.ly-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; margin-top: 10px; }
+.ly-btn-icon { background: rgba(0,0,0,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.ly-title-box { text-align: center; }
+.ly-title { font-weight: 700; font-size: 15px; color: #fff; }
+.ly-subtitle { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 2px;}
+.ly-text { font-size: 34px; font-weight: 900; color: #1a1a1a; line-height: 1.25; letter-spacing: -0.5px; flex: 1; }
+.ly-bottom { margin-top: 30px; padding-bottom: 20px; position: relative;}
+.ly-bottom .sp-bar { background: rgba(255,255,255,0.4); }
+.ly-bottom .sp-times { color: rgba(255,255,255,0.9); }
+.ly-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+.btn-voltar-lyrics { background: var(--btn-purple); color: #fff; padding: 12px 24px; border-radius: 30px; font-weight: 700; border: none; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.ly-play-peek { width: 70px; height: 70px; border-radius: 50%; background: #fff; position: absolute; right: 20px; bottom: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+.ly-play-peek span { border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 20px solid var(--bg-coral); margin-left: 6px; }
+
+/* Estilo Linha do Tempo (Jornada) */
+.modal-dark { background: var(--bg-app); }
+.tl-header-title { font-size: 22px; font-weight: 800; color: #fff; text-align: center; padding-top: 5px;}
+.tl-subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px;}
+.timeline-wrapper { position: relative; padding-left: 15px; margin-bottom: 40px;}
+.timeline-wrapper::before { content: ''; position: absolute; left: 24px; top: 10px; bottom: 0; width: 2px; background: linear-gradient(to bottom, var(--btn-purple), #ff007f); }
+.tli { position: relative; margin-bottom: 25px; padding-left: 35px; }
+.tld { width: 16px; height: 16px; border-radius: 50%; background: var(--btn-purple); border: 3px solid var(--bg-app); position: absolute; left: -2px; top: 0; box-shadow: 0 0 0 3px rgba(160, 112, 227, 0.2); }
+.tlc { background: #232325; padding: 18px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+.tldate { color: var(--btn-purple); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;}
+.tltext { font-size: 15px; color: #fff; line-height: 1.5; }
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="status-bar">
+    <span></span>
+    <span></span>
+  </div>
+  <div class="window-bar">
+    <div class="mac-dots">
+      <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+    </div>
+    <div class="window-title">Retrospectiva dos 8 meses</div>
+    <div class="window-close">✕</div>
+  </div>
+
+
+  <div class="card">
+    <div class="ach-header">
+      <div class="ach-title">Conquistas</div>
+      <div class="ach-badge" id="achBadge">0/0</div>
+    </div>
+    <div class="agrid" id="agrid">
+      </div>
+  </div>
+
+  <div class="card-retro">
+    <div class="retro-wave wave-top"></div>
+    <div class="retro-wave wave-bottom"></div>
+    <div class="retro-content">
+      <div class="retro-title">Sua Retrospectiva</div>
+      <div class="retro-sub">Explore o seu tempo de casal</div>
+      <div class="retro-btns">
+        <button class="btn-voltar-home" onclick="openLyrics()">‹ Voltar</button>
+        <button class="btn-vamos" onclick="openTimeline()">Vamos lá</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="music-header">
+    <h2>Nossa Música</h2>
+    <p>A primeira música é a do nosso primeiro beijo, a que decidimos que seria apenas nossa</p>
+  </div>
+
+  <div id="secao-musica" class="card-spotify">
+    <div class="mus-top">
+      <button class="mus-top-btn">v</button>
+      <div class="mus-top-title">te amo carequinha❤️</div>
+      <button class="mus-top-btn">⋯</button>
+    </div>
+    
+    <div class="mus-cover">
+      <img src="IMG-20251117-WA0002.jpg" alt="The Night We Met"> 
+    </div>
+
+    <div class="mus-info-row">
+      <div>
+        <div class="mus-title-wrap">
+        <div class="mus-title-track" id="musTitleTrack">
+          <div class="mus-title" id="musTitleText">The Night We Met</div>
+          <div class="mus-title" id="musTitleTextClone">The Night We Met</div>
+        </div>
+      </div>
+        <div class="mus-artist" id="musArtistText">Lord Huron</div>
+      </div>
+      <div class="mus-heart">💚</div>
+    </div>
+
+    <div class="sp-progress-area">
+      <div class="sp-bar" id="mbar" onclick="seekM(event)">
+        <div class="sp-bar-fill" id="mprog"></div>
+      </div>
+      <div class="sp-times"><span id="mcur">0:00</span><span id="mdur">3:28</span></div>
+    </div>
+
+    <div class="sp-controls">
+      <button class="sp-ctrl-btn" onclick="shuffleTrack()">🔀</button>
+      <button class="sp-ctrl-btn" onclick="prevTrack()">⏮</button>
+      <button class="sp-play-btn" id="pbtn" onclick="togglePlay()">
+        <span id="playIcon" style="border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 16px solid var(--bg-music);"></span>
+      </button>
+      <button class="sp-ctrl-btn" onclick="nextTrack()">⏭</button>
+      <button class="sp-ctrl-btn" onclick="toggleLoop()">🔁</button>
+    </div>
+
+    <div class="sp-device">
+      <div class="sp-device-icon">📱 Tocando no celular de Heitor</div>
+      <div style="color: #fff; font-size: 12px; font-weight: normal;">↑↓ Fila</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding-bottom: 5px;">
+    <p class="since-text">Juntos desde 27 de fevereiro de 2026 🩷</p>
+    <div class="cgrid">
+      <div class="cbox"><div class="cnum" id="cy">0</div><div class="clbl">Anos</div></div>
+      <div class="cbox"><div class="cnum" id="cm">0</div><div class="clbl">Meses</div></div>
+      <div class="cbox"><div class="cnum" id="cd">0</div><div class="clbl">Dias</div></div>
+      <div class="cbox"><div class="cnum" id="ch">23</div><div class="clbl">Horas</div></div>
+      <div class="cbox"><div class="cnum" id="cmi">58</div><div class="clbl">Minutos</div></div>
+      <div class="cbox"><div class="cnum" id="cs">30</div><div class="clbl">Segundos</div></div>
+    </div>
+  </div>
+
+  <div class="card-coral">
+    <div class="coral-header">Mensagem especial</div>
+    <div class="msg-text-wrapper">
+      <div class="hmsg">
+        Você tem uma mensagem especial guardada aqui, só para você. Clique em mostrar para ler tudo com calma.
+      </div>
+      <div class="fade-out"></div>
+    </div>
+    <button class="btn-mostrar" onclick="openLyrics()">Mostrar Mensagem</button>
+  </div>
+
+  <div class="card-nos">
+    <div class="nos-tag">Nós.</div>
+    <div class="nos-counter-badge" id="nosCounter">1 / 8</div>
+    
+    <div class="nos-carousel-container">
+      <button class="nav-btn left" onclick="scrollGaleria(-1)">‹</button>
+      <button class="nav-btn right" onclick="scrollGaleria(1)">›</button>
+
+      <div class="nos-carousel" id="nosCarousel">
+        <div class="gc" style="padding:0"><img src="WhatsApp Image 2026-04-14 at 14.27.17.jpeg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="WhatsApp Image 2026-04-14 at 14.27.17 (1).jpeg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="WhatsApp Image 2026-04-14 at 14.27.17 (2).jpeg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="WhatsApp Image 2026-04-14 at 14.27.17 (3).jpeg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="IMG-20260228-WA0161.jpg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="IMG-20260124-WA0026.jpg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="IMG_20251026_232943_388.jpg" style="width:100%;height:100%;object-fit:cover"></div>
+        <div class="gc" style="padding:0"><img src="IMG-20251117-WA0005.jpg" style="width:100%;height:100%;object-fit:cover"></div>
+      </div>
+    </div>
+
+    <div class="nos-info">
+      <div class="nos-names">Camilly e Heitor</div>
+      <div class="nos-since">Nossos caminhos se cruzaram em Setembro de 2025</div>
+    </div>
+  </div>
+
+  <div class="card card-moon">
+    <div class="card-title">A Lua Naquela Noite</div>
+    <div class="card-subtitle">Como estava a lua quando começamos a namorar</div>
+    <div class="canvas-wrapper">
+      <canvas id="moonc" width="200" height="200"></canvas>
+    </div>
+    <div class="card-title" id="mname" style="font-size: 16px;">Lua Crescente</div>
+    <div class="card-subtitle" style="margin-bottom: 0;">A lua estava iluminando uma noite maravilhosa✨</div>
+  </div>
+
+  <div class="card card-map">
+    <div class="card-title">Mapa das Estrelas</div>
+    <div class="card-subtitle">O céu quando você me pediu em namoro 💫</div>
+    <div class="canvas-wrapper">
+      <canvas id="stc" width="220" height="220"></canvas>
+    </div>
+    <div class="card-subtitle" style="margin-bottom: 0; font-weight: 700;">Cornélio Procópio, PR · 27 Fev 2026</div>
+     <div class="stars-loc" style="margin-top:4px; opacity:0.6; font-size:10px;">23°10′52″S 50°38′48″W</div>
+  </div>
+
+  <div class="card card-map">
+    <div class="card-title">Nossa Jornada no Mapa</div>
+    <div class="card-subtitle">Lugares que marcaram nossa história</div>
+    <div class="canvas-wrapper">
+      <canvas id="mapc" width="340" height="240" style="border-radius: 18px; width: 100%; height: auto; max-width: 340px;"></canvas>
+    </div>
+    <div class="map-legend">
+      <span>📍 Dois marcos especiais no caminho.</span><br>
+      <span>✨ Um traço suave mostra nossa jornada até aqui.</span>
+    </div>
+  </div>
+
+  <div class="footer">
+    Feito com amor para Heitor♡ · 15.04.2026
+  </div>
+
+</div> <div id="achModal" class="ach-modal-overlay" onclick="closeAchievement(event)">
+  <div class="ach-popup" onclick="event.stopPropagation()">
+    <div class="ach-popup-icon" id="achIcon">🏆</div>
+    <div class="ach-popup-title" id="achTitle">Título</div>
+    <div class="ach-popup-desc" id="achDesc">Descrição da conquista.</div>
+    <button class="ach-popup-btn" onclick="closeAchievement()">Fechar</button>
+  </div>
+</div>
+
+<div id="timelineModal" class="fullscreen-modal modal-dark">
+  <div class="ly-top">
+    <button class="ly-btn-icon" onclick="closeTimeline()">✕</button>
+  </div>
+  
+  <div class="tl-header-title">Nossa Jornada</div>
+  <div class="tl-subtitle">Cada momento que nos trouxe até aqui ❤️</div>
+
+  <div class="timeline-wrapper" id="timelineContent">
+    </div>
+
+  <div style="text-align: center; margin-top: 10px;">
+    <button class="btn-voltar-lyrics" style="display: inline-flex;" onclick="closeTimeline()">‹ Fechar e Voltar</button>
+  </div>
+</div>
+
+<div id="lyricsModal" class="fullscreen-modal modal-coral">
+  <div class="ly-top">
+    <button class="ly-btn-icon" onclick="closeLyrics()">⌄</button>
+    <div class="ly-title-box">
+      <div class="ly-title">The Night We Met</div>
+      <div class="ly-subtitle">Lord Huron</div>
+    </div>
+    <button class="ly-btn-icon">🚩</button>
+  </div>
+
+  <div class="ly-text">
+    Se eu pudesse ter um superpoder eu iria voltar no tempo e ser levada de volta para a noite em que nos conhecemos.<br><br>
+    Não para mudar absolutamente nada, mas só para ter o privilégio de sentir de novo aquele frio na barriga de cruzar o meu olhar com o seu pela primeira vez.<br><br>
+    Aquele foi o momento exato em que a minha vida mudou para melhor. Você é o meu encontro mais bonito, a minha melodia favorita e a minha melhor escolha todos os dias.<br><br>
+    Te amo, be♡ <br><br>
+    PS: A letra da música é só uma desculpa para eu te dizer tudo isso, mas eu espero que você goste de ler cada palavra como se fosse a primeira vez, assim como eu gosto de ouvir essa música toda vez que penso em você. <br><br>
+  </div>
+
+  <div class="ly-bottom">
+    <div class="sp-bar" id="ly-bar" onclick="seekM(event)">
+      <div class="sp-bar-fill" id="ly-prog"></div>
+    </div>
+    <div class="sp-times"><span id="ly-cur">0:00</span><span id="ly-dur">3:28</span></div>
+    
+    <div class="ly-controls">
+      <button class="btn-voltar-lyrics" onclick="closeLyrics()">‹ Voltar</button>
+      <div class="ly-play-peek" onclick="togglePlay()">
+         <span id="ly-playIcon"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const startDate = new Date('2026-02-27T00:00:00');
+const AUDIO_SRC = 'WhatsApp Audio 2026-04-14 at 14.25.21.mpeg';
+const AUDIO_SRC1 = 'Rita Lee - Minha Vida (In My Life) - Tema da Novela Espelho da Vida - Deck (128k).mp3';
+const AUDIO_SRC2 = '_Justin-Bieber-Company_Media_gdx7gN1UyX0_009_128k.mp3';
+const AUDIO_SRC3 = 'YouTube_Jade-LeMac-Constellations-Official-Music_Media_y13-xeaShIo_009_128k.mp3';
+const trackList = [
+  { title: 'The Night We Met', artist: 'Lord Huron', src: AUDIO_SRC, cover: 'IMG-20251117-WA0002.jpg', bg: 'linear-gradient(180deg,#170f2e,#10091f)' },
+  { title: 'Minha Vida (In My Life)', artist: 'Rita Lee', src: AUDIO_SRC1, cover: 'IMG_20251026_232943_388.jpg', bg: 'linear-gradient(180deg,#4a1f56,#171b2b)' },
+  { title: 'Company', artist: 'Justin Bieber', src: AUDIO_SRC2, cover: 'WhatsApp Image 2026-04-14 at 14.27.17 (2).jpeg', bg: 'linear-gradient(180deg,#112536,#0b1a2a)' },
+  { title: 'Constellations', artist: 'Jade LeMac', src: AUDIO_SRC3, cover: 'IMG-20251117-WA0005.jpg', bg: 'linear-gradient(180deg,#1b2030,#0e131d)' }
+];
+let currentTrackIndex = 0;
+let loopEnabled = true;
+
+function updateMusicUI() {
+  const track = trackList[currentTrackIndex];
+  const titleEl = document.getElementById('musTitleText');
+  const artistEl = document.getElementById('musArtistText');
+  const coverEl = document.querySelector('.mus-cover img');
+  const section = document.getElementById('secao-musica');
+
+  if(titleEl) titleEl.textContent = track.title;
+  const cloneTitleEl = document.getElementById('musTitleTextClone');
+  if(cloneTitleEl) cloneTitleEl.textContent = track.title;
+  if(artistEl) artistEl.textContent = track.artist;
+  if(coverEl) { coverEl.src = track.cover; coverEl.alt = track.title; }
+  if(section) section.style.background = track.bg;
+}
+
+function loadTrack(index) {
+  currentTrackIndex = (index + trackList.length) % trackList.length;
+  const track = trackList[currentTrackIndex];
+
+  if(!audio) return;
+  const wasPlaying = playing;
+  audio.src = track.src;
+  audio.load();
+  updateMusicUI();
+  audio.loop = loopEnabled;
+  if(wasPlaying) audio.play();
+  setPlayIcons();
+}
+
+function nextTrack() { loadTrack(currentTrackIndex + 1); }
+function prevTrack() { loadTrack(currentTrackIndex - 1); }
+function shuffleTrack() { loadTrack(Math.floor(Math.random() * trackList.length)); }
+function toggleLoop() { loopEnabled = !loopEnabled; if(audio) audio.loop = loopEnabled; }
+
+// ==========================================
+// DADOS DA LINHA DO TEMPO E CONQUISTAS
+// ==========================================
+const timelineData = [
+  { date: '27 de Setembro de 2025', text: 'Nos conhecemos pela primeira vez 🩷' },
+  { date: '22 de Outubro de 2025',  text: 'Nosso primeiro beijo 🩷' },
+  { date: '27 de Fevereiro de 2026',text: 'Início do nosso namoro 🩷' },
+  { date: '27 de Março de 2026',    text: 'Primeiro mês juntos — 30 dias de sorrisos e madrugadas em claro' },
+  { date: 'Abril 2026',             text: 'Cada dia ao seu lado é um presente novo' }
+];
+
+document.getElementById('timelineContent').innerHTML = timelineData.map(t => `
+  <div class="tli">
+    <div class="tld"></div>
+    <div class="tlc">
+      <div class="tldate">${t.date}</div>
+      <div class="tltext">${t.text}</div>
+    </div>
+  </div>
+`).join('');
+
+const achievements = [
+  { icon:'🚀', name:'Decolagem',     desc:'Começaram a história juntos.',       on:true  },
+  { icon:'💌', name:'Carta de Amor', desc:'Mensagem especial com todo o amor.', on:true  },
+  { icon:'🌙', name:'Lunáticos',     desc:'Descobriram a fase da lua daquele dia.',on:true  },
+  { icon:'⭐', name:'Céu Estrelado', desc:'Mapa estelar da noite especial.',     on:true  },
+  { icon:'🎵', name:'Melodia',       desc:'A música que é só de vocês.',         on:true  },
+  { icon:'📅', name:'Historiadores', desc:'Momentos registrados com carinho.',   on:true  },
+  { icon:'🗺️', name:'Exploradores',  desc:'Lugares marcados no mapa.',           on:true  },
+  { icon:'🎮', name:'Desafiadores',  desc:'Se divertiram descobrindo juntos.',   on:true  },
+  { icon:'🌹', name:'Românticos',    desc:'Criaram seu site de amor.',            on:true  },
+  { icon:'🗓️', name:'1 Mês',         desc:'O primeiro de muitos meses juntos.',  on:true  },
+  { icon:'♾️', name:'Para Sempre',   desc:'Amor que não tem fim.',                on:true  },
+  { icon:'🗓️', name:'2 Meses',       desc:'Dois meses juntos.',                  on:false },
+  { icon:'🎂', name:'1 Ano',         desc:'Um ano inteiro de muito amor.',       on:false },
+];
+
+const unlockedCount = achievements.filter(a => a.on).length;
+document.getElementById('achBadge').textContent = `${unlockedCount}/${achievements.length}`;
+
+document.getElementById('agrid').innerHTML = achievements.map(a => `
+  <div class="acard ${a.on ? 'highlight' : 'locked'}" 
+       onclick="showAchievement('${a.on ? a.icon : '🔒'}', '${a.on ? a.name : 'Bloqueado'}', '${a.on ? a.desc : 'Continue construindo sua história para desbloquear esta conquista.'}')">
+    ${a.icon}
+  </div>
+`).join('');
+
+// ==========================================
+// FUNÇÕES DE INTERATIVIDADE E MODAIS
+// ==========================================
+function showAchievement(icon, title, desc) {
+  document.getElementById('achIcon').innerText = icon;
+  document.getElementById('achTitle').innerText = title;
+  document.getElementById('achDesc').innerText = desc;
+  const modal = document.getElementById('achModal');
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+function closeAchievement(e) {
+  const modal = document.getElementById('achModal');
+  modal.classList.remove('show');
+  setTimeout(() => modal.style.display = 'none', 300);
+}
+function openTimeline() { document.getElementById('timelineModal').style.display = 'flex'; }
+function closeTimeline() { document.getElementById('timelineModal').style.display = 'none'; }
+function openLyrics() {
+  if (audio) {
+    if (currentTrackIndex !== 0) loadTrack(0);
+    if (!playing) {
+      audio.play();
+      playing = true;
+    }
+    setPlayIcons();
+  }
+  document.getElementById('lyricsModal').style.display = 'flex';
+}
+function closeLyrics() { document.getElementById('lyricsModal').style.display = 'none'; }
+
+// ==========================================
+// CARROSSEL DE FOTOS (NÓS.)
+// ==========================================
+const carousel = document.getElementById('nosCarousel');
+const counter = document.getElementById('nosCounter');
+const totalSlides = carousel.querySelectorAll('.gc').length;
+
+function scrollGaleria(direction) {
+  const slideWidth = carousel.offsetWidth;
+  carousel.scrollBy({ left: direction * slideWidth, behavior: 'smooth' });
+}
+
+carousel.addEventListener('scroll', () => {
+  let index = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+  if(index < 0) index = 0;
+  if(index >= totalSlides) index = totalSlides - 1;
+  counter.textContent = (index + 1) + ' / ' + totalSlides;
+});
+
+// ==========================================
+// CONTADOR DE TEMPO
+// ==========================================
+function updateCounter(){
+  const now = new Date();
+  let years = now.getFullYear() - startDate.getFullYear();
+  let months = now.getMonth() - startDate.getMonth();
+  let days = now.getDate() - startDate.getDate();
+
+  if (days < 0) {
+    months--;
+    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+  }
+  if (months < 0) { years--; months += 12; }
+
+  const ms = now - startDate;
+  document.getElementById('cy').textContent = years;
+  document.getElementById('cm').textContent = months;
+  document.getElementById('cd').textContent = days;
+  document.getElementById('ch').textContent = Math.floor((ms % 86400000) / 3600000);
+  document.getElementById('cmi').textContent = Math.floor((ms % 3600000) / 60000);
+  document.getElementById('cs').textContent = Math.floor((ms % 60000) / 1000);
+}
+setInterval(updateCounter, 1000);
+updateCounter();
+
+// ==========================================
+// DESENHO DOS CANVASES (LUA, MAPA, ESTRELAS)
+// ==========================================
+(()=>{
+  // LUA
+  const cvM=document.getElementById('moonc'); 
+  if(cvM){
+    const ctx=cvM.getContext('2d'), w=cvM.width, cx=w/2, r=78;
+    const diff=(startDate-new Date('2000-01-06'))/86400000;
+    const phase=((diff%29.53)+29.53)%29.53;
+    const names=['Nova','Crescente','Quarto Crescente','Gibosa Crescente','Cheia','Gibosa Minguante','Quarto Minguante','Minguante'];
+    if(document.getElementById('mname')) document.getElementById('mname').textContent='Lua '+names[Math.round(phase/3.69)%8];
+    ctx.fillStyle='#1c1c1e'; ctx.fillRect(0,0,w,w); // Fundo igual ao card
+    for(let i=0;i<38;i++){const sx=Math.random()*w,sy=Math.random()*w,dx=sx-cx,dy=sy-cx;if(dx*dx+dy*dy>r*r){ctx.beginPath();ctx.arc(sx,sy,.8,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.55)';ctx.fill();}}
+    ctx.fillStyle='#0f0f13'; ctx.beginPath(); ctx.arc(cx,cx,r,0,Math.PI*2); ctx.fill();
+    const il=phase/29.53, wan=il>.5, lit=wan?1-(il-.5)*2:il*2;
+    ctx.save(); ctx.fillStyle='#e8d5b7';
+    if(wan){ctx.beginPath();ctx.arc(cx,cx,r,Math.PI/2,3*Math.PI/2);ctx.closePath();ctx.fill();ctx.fillStyle='#0f0f13';ctx.beginPath();ctx.ellipse(cx,cx,Math.abs(r*(1-lit*2)),r,0,0,Math.PI*2);ctx.fill();}
+    else{ctx.beginPath();ctx.arc(cx,cx,r,Math.PI/2,3*Math.PI/2,true);ctx.closePath();ctx.fill();ctx.fillStyle='#0f0f13';ctx.beginPath();ctx.ellipse(cx,cx,Math.abs(r*(1-lit*2)),r,0,0,Math.PI*2);ctx.fill();}
+    ctx.restore();
+  }
+
+  // ESTRELAS
+  const cvS=document.getElementById('stc'); 
+  if(cvS){
+    const ctx=cvS.getContext('2d'), w=cvS.width, cx=w/2;
+    ctx.fillStyle='#080818'; ctx.beginPath(); ctx.arc(cx,cx,cx,0,Math.PI*2); ctx.fill();
+    const seed=startDate.getTime();
+    const rng=n=>{let x=Math.sin(n+seed*.00001)*99999;return x-Math.floor(x);};
+    for(let i=0;i<150;i++){
+      const a=rng(i)*Math.PI*2, r=rng(i+100)*(cx-8);
+      ctx.beginPath(); ctx.arc(cx+Math.cos(a)*r,cx+Math.sin(a)*r,rng(i+200)*1.8+.3,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${rng(i+300)*.7+.3})`; ctx.fill();
+    }
+    const pts=[];
+    for(let i=0;i<9;i++){
+      const a=rng(i+400)*Math.PI*2, r=rng(i+500)*(cx-28);
+      pts.push({x:cx+Math.cos(a)*r, y:cx+Math.sin(a)*r});
+    }
+    ctx.strokeStyle='rgba(167,139,250,.38)'; ctx.lineWidth=.9;
+    for(let i=0;i<pts.length-1;i++){
+      ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[i+1].x,pts[i+1].y); ctx.stroke();
+    }
+    pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,2.4,0,Math.PI*2); ctx.fillStyle='#a78bfa'; ctx.fill(); });
+  }
+
+  // MAPA
+  const cvP=document.getElementById('mapc');
+  if(cvP){
+    const ctx=cvP.getContext('2d'), w=cvP.width, h=cvP.height;
+    ctx.fillStyle='#16161d'; ctx.fillRect(0,0,w,h);
+    [{x:120,y:98,rx:110,ry:66,a:.06,c:'#22222f'},{x:240,y:108,rx:95,ry:55,a:-.3,c:'#2c2c37'}].forEach(l=>{ctx.save();ctx.fillStyle=l.c;ctx.beginPath();ctx.ellipse(l.x,l.y,l.rx,l.ry,l.a,0,Math.PI*2);ctx.fill();ctx.restore();});
+    ctx.strokeStyle='rgba(160,112,227,0.92)'; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(70,85); ctx.bezierCurveTo(120,40, 210,160, 270,110); ctx.stroke();
+    const points = [
+      {x:70,y:85,title:'Onde tudo começou',desc:'Cornélio Procópio, PR', anchor:'right', yOff:-28},
+      {x:270,y:110,title:'Nosso lugar favorito',desc:'O lugar que é só nosso', anchor:'left', yOff:12}
+    ];
+    const wrapText = (text, maxWidth) => {
+      const words = text.split(' ');
+      const lines = [];
+      let line = '';
+      words.forEach(word => {
+        const test = line ? `${line} ${word}` : word;
+        if(ctx.measureText(test).width > maxWidth){ if(line) lines.push(line); line = word; } else { line = test; }
+      });
+      if(line) lines.push(line);
+      return lines;
+    };
+    points.forEach(p => {
+      ctx.fillStyle='#38BDF8'; ctx.beginPath(); ctx.arc(p.x,p.y,9,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(p.x,p.y,4,0,Math.PI*2); ctx.fill();
+      const maxW = 120;
+      ctx.font='600 12px Inter, sans-serif';
+      const titleLines = wrapText(p.title, maxW);
+      ctx.font='500 11px Inter, sans-serif';
+      const descLines = wrapText(p.desc, maxW);
+      const lines = [...titleLines, ...descLines];
+      const lineHeight = 16;
+      const boxWidth = maxW + 20;
+      const boxHeight = lines.length * lineHeight + 16;
+      const alignRight = p.anchor === 'right';
+      const xRect = alignRight ? p.x + 18 : p.x - boxWidth - 18;
+      let yRect = p.y + (p.yOff || 0);
+      if(yRect < 12) yRect = 12;
+      if(yRect > h - boxHeight - 12) yRect = h - boxHeight - 12;
+      ctx.fillStyle='rgba(0,0,0,0.78)'; ctx.strokeStyle='rgba(255,255,255,0.14)'; ctx.lineWidth=1;
+      const r = 14;
+      ctx.beginPath();
+      ctx.moveTo(xRect + r, yRect);
+      ctx.lineTo(xRect + boxWidth - r, yRect);
+      ctx.quadraticCurveTo(xRect + boxWidth, yRect, xRect + boxWidth, yRect + r);
+      ctx.lineTo(xRect + boxWidth, yRect + boxHeight - r);
+      ctx.quadraticCurveTo(xRect + boxWidth, yRect + boxHeight, xRect + boxWidth - r, yRect + boxHeight);
+      ctx.lineTo(xRect + r, yRect + boxHeight);
+      ctx.quadraticCurveTo(xRect, yRect + boxHeight, xRect, yRect + boxHeight - r);
+      ctx.lineTo(xRect, yRect + r);
+      ctx.quadraticCurveTo(xRect, yRect, xRect + r, yRect);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      let ty = yRect + 10;
+      ctx.fillStyle='#fff'; ctx.font='600 12px Inter, sans-serif';
+      titleLines.forEach(line => { ctx.fillText(line, xRect + 10, ty); ty += lineHeight; });
+      ctx.fillStyle='rgba(255,255,255,0.86)'; ctx.font='500 11px Inter, sans-serif';
+      descLines.forEach(line => { ctx.fillText(line, xRect + 10, ty); ty += lineHeight; });
+      ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y);
+      const tx = alignRight ? xRect : xRect + boxWidth;
+      const ty2 = yRect + boxHeight / 2;
+      ctx.lineTo(tx, ty2); ctx.stroke();
+    });
+  }
+})();
+
+// ==========================================
+// PLAYER DE MÚSICA
+// ==========================================
+let audio = null;
+let playing = false;
+
+if(AUDIO_SRC){
+  audio = new Audio(trackList[currentTrackIndex].src);
+  audio.loop = loopEnabled;
+  audio.addEventListener('loadedmetadata', () => {
+    let d = fmt(audio.duration);
+    document.getElementById('mdur').textContent = d;
+    document.getElementById('ly-dur').textContent = d;
+  });
+  audio.addEventListener('timeupdate', () => {
+    if(!audio.duration) return;
+    let pct = (audio.currentTime / audio.duration * 100) + '%';
+    let cur = fmt(audio.currentTime);
+    document.getElementById('mprog').style.width = pct;
+    document.getElementById('mcur').textContent = cur;
+    document.getElementById('ly-prog').style.width = pct;
+    document.getElementById('ly-cur').textContent = cur;
+  });
+  audio.addEventListener('ended', () => {
+    if(!loopEnabled) {
+      playing = false;
+      setPlayIcons();
+    }
+  });
+  updateMusicUI();
+}
+
+function setPlayIcons() {
+  const playIcon = document.getElementById('playIcon');
+  const lyPlayIcon = document.getElementById('ly-playIcon');
+  const btn = document.getElementById('pbtn');
+  const musTitleTrack = document.getElementById('musTitleTrack');
+  
+  if(playing) {
+    btn.classList.add('paused');
+    let pauseStyle = "width:14px; height:20px; border-left:4px solid var(--bg-music); border-right:4px solid var(--bg-music); border-top:none; border-bottom:none;";
+    let pauseStyleCoral = "width:14px; height:20px; border-left:4px solid var(--bg-coral); border-right:4px solid var(--bg-coral); border-top:none; border-bottom:none; margin-left:0;";
+    playIcon.style.cssText = pauseStyle;
+    lyPlayIcon.style.cssText = pauseStyleCoral;
+    if(musTitleTrack) musTitleTrack.classList.add('scrolling');
+  } else {
+    btn.classList.remove('paused');
+    playIcon.style.cssText = "border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 16px solid var(--bg-music);";
+    lyPlayIcon.style.cssText = "border-top: 12px solid transparent; border-bottom: 12px solid transparent; border-left: 20px solid var(--bg-coral); margin-left: 6px;";
+    if(musTitleTrack) musTitleTrack.classList.remove('scrolling');
+  }
+}
+
+function togglePlay(){
+  if(!audio) { alert('Verifique o caminho do arquivo de áudio (AUDIO_SRC).'); return; }
+  if(playing){ audio.pause(); playing = false; } 
+  else { audio.play(); playing = true; }
+  setPlayIcons();
+}
+
+function restartM(){ if(audio) audio.currentTime = 0; }
+function seekM(e){
+  if(!audio) return;
+  let bar = e.currentTarget;
+  audio.currentTime = (e.offsetX / bar.clientWidth) * audio.duration;
+}
+function fmt(s){
+  if(isNaN(s)) return "0:00";
+  return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+}
+</script>
+</body>
+</html>
